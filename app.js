@@ -79,8 +79,10 @@ app.get("/:customListName",function(req,res){
                     name: customListName,
                     items: defaultItems
                 });
-                list.save();
-                res.redirect("/" + customListName);
+                list.save(err => {
+                    if(!err)
+                        res.redirect("/" + customListName);
+                });
             }
             else {
                 res.render("lists", {listTitle: customListName, tasks: foundList.items});
@@ -104,15 +106,18 @@ app.post("/",function(req,res){
 
 
     if(listName === 'Today'){
-        newTask.save();
-        res.redirect("/");
+        newTask.save(err => {
+            if(!err)
+                res.redirect("/");
+        });
     }
     else {
         List.findOne({name: listName}, function(err, foundList){
             foundList.items.push(newTask);
-            foundList.save();
-
-            res.redirect("/" + listName);
+            foundList.save(err => {
+                if(!err)
+                    res.redirect("/" + listName);
+            });
         })
     }
 });
@@ -123,7 +128,7 @@ app.post("/delete",function(req,res){
 
     if(listName === 'Today'){
         Item.deleteOne({_id: checkedItemId},err => {
-            err ? console.log(err) : console.log("Succefully item is deleted.");;
+            err ? console.log(err) : console.log("Succefully item is deleted.");
         })
         res.redirect("/");
     }
